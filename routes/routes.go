@@ -9,6 +9,7 @@ func HandleRequests() {
 	router := gin.Default()
 
 	router.GET("/students", controllers.GetAllStudents)
+	router.GET("/:name", controllers.Salutation)
 
 	router.Run()
 }
