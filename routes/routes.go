@@ -11,6 +11,7 @@ func HandleRequests() {
 	router.GET("/:name", controllers.Salutation)
 	router.GET("/students", controllers.GetAllStudents)
 	router.GET("/students/:id", controllers.GetStudentById)
+	router.GET("/students/cpf/:cpf", controllers.GetStudentByCPF)
 	router.POST("/students", controllers.CreateStudent)
 	router.PATCH("/students/:id", controllers.UpdateStudentById)
 	router.DELETE("/students/:id", controllers.DeleteStudentById)

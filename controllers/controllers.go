@@ -42,6 +42,24 @@ func GetStudentById(context *gin.Context) {
 	context.JSON(http.StatusOK, student)
 }
 
+func GetStudentByCPF(context *gin.Context) {
+	var student models.Student
+
+	cpf := context.Params.ByName("cpf")
+
+	database.DB.Where(&models.Student{CPF: cpf}).First(&student)
+
+	if student.ID == 0 {
+		context.JSON(http.StatusNotFound, gin.H{
+			"message": "student not found",
+		})
+
+		return
+	}
+
+	context.JSON(http.StatusOK, student)
+}
+
 func CreateStudent(context *gin.Context) {
 	var student models.Student
 
