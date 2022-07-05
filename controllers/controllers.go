@@ -42,6 +42,18 @@ func GetStudentById(context *gin.Context) {
 	context.JSON(http.StatusOK, student)
 }
 
+func DeleteStudentById(context *gin.Context) {
+	var student models.Student
+
+	id := context.Params.ByName("id")
+
+	database.DB.Delete(&student, id)
+
+	context.JSON(http.StatusOK, gin.H{
+		"message": "student successfully deleted",
+	})
+}
+
 func CreateStudent(context *gin.Context) {
 	var student models.Student
 

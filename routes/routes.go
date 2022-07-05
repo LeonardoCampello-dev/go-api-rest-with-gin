@@ -12,6 +12,7 @@ func HandleRequests() {
 	router.GET("/students", controllers.GetAllStudents)
 	router.GET("/students/:id", controllers.GetStudentById)
 	router.POST("/students", controllers.CreateStudent)
+	router.DELETE("/students/:id", controllers.DeleteStudentById)
 
 	router.Run()
 }
