@@ -17,7 +17,29 @@ func Salutation(context *gin.Context) {
 }
 
 func GetAllStudents(context *gin.Context) {
-	context.JSON(http.StatusOK, models.Students)
+	var students []models.Student
+
+	database.DB.Find(&students)
+
+	context.JSON(http.StatusOK, students)
+}
+
+func GetStudentById(context *gin.Context) {
+	var student models.Student
+
+	id := context.Params.ByName("id")
+
+	database.DB.First(&student, id)
+
+	if student.ID == 0 {
+		context.JSON(http.StatusNotFound, gin.H{
+			"message": "student not found",
+		})
+
+		return
+	}
+
+	context.JSON(http.StatusOK, student)
 }
 
 func CreateStudent(context *gin.Context) {

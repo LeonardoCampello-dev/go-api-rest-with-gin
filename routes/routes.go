@@ -10,6 +10,7 @@ func HandleRequests() {
 
 	router.GET("/:name", controllers.Salutation)
 	router.GET("/students", controllers.GetAllStudents)
+	router.GET("/students/:id", controllers.GetStudentById)
 	router.POST("/students", controllers.CreateStudent)
 
 	router.Run()
