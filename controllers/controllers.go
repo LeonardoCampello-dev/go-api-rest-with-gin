@@ -63,9 +63,15 @@ func GetStudentByCPF(context *gin.Context) {
 func CreateStudent(context *gin.Context) {
 	var student models.Student
 
-	err := context.ShouldBindJSON(&student)
+	if err := context.ShouldBindJSON(&student); err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{
+			"error": err,
+		})
 
-	if err != nil {
+		return
+	}
+
+	if err := models.ValidateStudentSchema(&student); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{
 			"error": err,
 		})
@@ -85,9 +91,15 @@ func UpdateStudentById(context *gin.Context) {
 
 	database.DB.First(&student, id)
 
-	err := context.ShouldBindJSON(&student)
+	if err := context.ShouldBindJSON(&student); err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{
+			"error": err,
+		})
 
-	if err != nil {
+		return
+	}
+
+	if err := models.ValidateStudentSchema(&student); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{
 			"error": err,
 		})
