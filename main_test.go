@@ -8,6 +8,7 @@ import (
 
 	"github.com/LeonardoCampello-dev/go-api-rest-with-gin/controllers"
 	"github.com/LeonardoCampello-dev/go-api-rest-with-gin/database"
+	"github.com/LeonardoCampello-dev/go-api-rest-with-gin/models"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
@@ -16,6 +17,22 @@ func MakeRoutes() *gin.Engine {
 	routes := gin.Default()
 
 	return routes
+}
+
+var ID int
+
+func CreateMockStudent() {
+	student := models.Student{Name: "Test student", CPF: "415.173.790-16", RG: "23.069.369-6"}
+
+	database.DB.Create(&student)
+
+	ID = int(student.ID)
+}
+
+func DeleteMockStudent() {
+	var student models.Student
+
+	database.DB.Delete(&student, ID)
 }
 
 func TestCheckSalutationStatusCode(test *testing.T) {
@@ -40,6 +57,10 @@ func TestCheckSalutationStatusCode(test *testing.T) {
 
 func TestStudentList(test *testing.T) {
 	database.ConnectWithDatabase()
+
+	CreateMockStudent()
+
+	defer DeleteMockStudent()
 
 	router := MakeRoutes()
 
