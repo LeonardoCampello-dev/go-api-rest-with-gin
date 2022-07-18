@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/LeonardoCampello-dev/go-api-rest-with-gin/controllers"
+	"github.com/LeonardoCampello-dev/go-api-rest-with-gin/database"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
@@ -18,15 +19,15 @@ func MakeRoutes() *gin.Engine {
 }
 
 func TestCheckSalutationStatusCode(test *testing.T) {
-	routes := MakeRoutes()
+	router := MakeRoutes()
 
-	routes.GET("/:name", controllers.Salutation)
+	router.GET("/:name", controllers.Salutation)
 
-	req, _ := http.NewRequest("GET", "/fake-name", nil)
+	request, _ := http.NewRequest("GET", "/fake-name", nil)
 
 	response := httptest.NewRecorder()
 
-	routes.ServeHTTP(response, req)
+	router.ServeHTTP(response, request)
 
 	assert.Equal(test, http.StatusOK, response.Code, "the request should return 200 if given a name parameter")
 
@@ -35,4 +36,20 @@ func TestCheckSalutationStatusCode(test *testing.T) {
 	responseBody, _ := ioutil.ReadAll(response.Body)
 
 	assert.Equal(test, responseMock, string(responseBody))
+}
+
+func TestStudentList(test *testing.T) {
+	database.ConnectWithDatabase()
+
+	router := MakeRoutes()
+
+	router.GET("/students", controllers.GetAllStudents)
+
+	request, _ := http.NewRequest("GET", "/students", nil)
+
+	response := httptest.NewRecorder()
+
+	router.ServeHTTP(response, request)
+
+	assert.Equal(test, http.StatusOK, response.Code)
 }
