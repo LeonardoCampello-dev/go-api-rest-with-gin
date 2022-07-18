@@ -14,6 +14,8 @@ import (
 )
 
 func MakeRoutes() *gin.Engine {
+	gin.SetMode(gin.ReleaseMode)
+
 	routes := gin.Default()
 
 	return routes
@@ -22,7 +24,7 @@ func MakeRoutes() *gin.Engine {
 var ID int
 
 func CreateMockStudent() {
-	student := models.Student{Name: "Test student", CPF: "415.173.790-16", RG: "23.069.369-6"}
+	student := models.Student{Name: "fake-student", CPF: "415.173.790-16", RG: "23.069.369-6"}
 
 	database.DB.Create(&student)
 
@@ -67,6 +69,26 @@ func TestStudentList(test *testing.T) {
 	router.GET("/students", controllers.GetAllStudents)
 
 	request, _ := http.NewRequest("GET", "/students", nil)
+
+	response := httptest.NewRecorder()
+
+	router.ServeHTTP(response, request)
+
+	assert.Equal(test, http.StatusOK, response.Code)
+}
+
+func TestStudentSearchByCPF(test *testing.T) {
+	database.ConnectWithDatabase()
+
+	CreateMockStudent()
+
+	defer DeleteMockStudent()
+
+	router := MakeRoutes()
+
+	router.GET("/students/cpf/:cpf", controllers.GetStudentByCPF)
+
+	request, _ := http.NewRequest("GET", "/students/cpf/415.173.790-16", nil)
 
 	response := httptest.NewRecorder()
 
