@@ -6,6 +6,8 @@ import (
 )
 
 func HandleRequests() {
+	gin.SetMode(gin.DebugMode)
+
 	router := gin.Default()
 
 	router.GET("/:name", controllers.Salutation)

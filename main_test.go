@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -26,7 +27,7 @@ func MakeRoutes() *gin.Engine {
 var ID int
 
 func CreateMockStudent() {
-	student := models.Student{Name: "mock-student", CPF: "415.173.790-16", RG: "23.069.369-6"}
+	student := models.Student{Name: "mock-student", CPF: "41517379016", RG: "230693696"}
 
 	database.DB.Create(&student)
 
@@ -90,7 +91,7 @@ func TestStudentSearchByCPF(test *testing.T) {
 
 	router.GET("/students/cpf/:cpf", controllers.GetStudentByCPF)
 
-	request, _ := http.NewRequest("GET", "/students/cpf/415.173.790-16", nil)
+	request, _ := http.NewRequest("GET", "/students/cpf/41517379016", nil)
 
 	response := httptest.NewRecorder()
 
@@ -121,8 +122,8 @@ func TestGetStudentById(test *testing.T) {
 	json.Unmarshal(response.Body.Bytes(), &mockStudent)
 
 	assert.Equal(test, "mock-student", mockStudent.Name)
-	assert.Equal(test, "415.173.790-16", mockStudent.CPF)
-	assert.Equal(test, "23.069.369-6", mockStudent.RG)
+	assert.Equal(test, "41517379016", mockStudent.CPF)
+	assert.Equal(test, "230693696", mockStudent.RG)
 }
 
 func TestDeleteStudentById(test *testing.T) {
@@ -145,4 +146,34 @@ func TestDeleteStudentById(test *testing.T) {
 	if response.Code != http.StatusOK {
 		DeleteMockStudent()
 	}
+}
+
+func TestUpdateStudentById(test *testing.T) {
+	database.ConnectWithDatabase()
+
+	CreateMockStudent()
+
+	defer DeleteMockStudent()
+
+	router := MakeRoutes()
+
+	router.PATCH("/students/:id", controllers.UpdateStudentById)
+
+	student := models.Student{Name: "mock-student", CPF: "03224525007", RG: "280332646"}
+
+	studentJSON, _ := json.Marshal(student)
+
+	request, _ := http.NewRequest("PATCH", "/students/"+strconv.Itoa(ID), bytes.NewBuffer(studentJSON))
+
+	response := httptest.NewRecorder()
+
+	router.ServeHTTP(response, request)
+
+	var updatedMockStudent models.Student
+
+	json.Unmarshal(response.Body.Bytes(), &updatedMockStudent)
+
+	assert.Equal(test, "mock-student", updatedMockStudent.Name)
+	assert.Equal(test, "03224525007", updatedMockStudent.CPF)
+	assert.Equal(test, "280332646", updatedMockStudent.RG)
 }
