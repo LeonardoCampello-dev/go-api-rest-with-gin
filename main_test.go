@@ -1,9 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"testing"
 
 	"github.com/LeonardoCampello-dev/go-api-rest-with-gin/controllers"
@@ -24,7 +26,7 @@ func MakeRoutes() *gin.Engine {
 var ID int
 
 func CreateMockStudent() {
-	student := models.Student{Name: "fake-student", CPF: "415.173.790-16", RG: "23.069.369-6"}
+	student := models.Student{Name: "mock-student", CPF: "415.173.790-16", RG: "23.069.369-6"}
 
 	database.DB.Create(&student)
 
@@ -42,7 +44,7 @@ func TestCheckSalutationStatusCode(test *testing.T) {
 
 	router.GET("/:name", controllers.Salutation)
 
-	request, _ := http.NewRequest("GET", "/fake-name", nil)
+	request, _ := http.NewRequest("GET", "/mock-student", nil)
 
 	response := httptest.NewRecorder()
 
@@ -50,7 +52,7 @@ func TestCheckSalutationStatusCode(test *testing.T) {
 
 	assert.Equal(test, http.StatusOK, response.Code, "the request should return 200 if given a name parameter")
 
-	responseMock := `{"API says":"Hi fake-name, how are you?"}`
+	responseMock := `{"API says":"Hi mock-student, how are you?"}`
 
 	responseBody, _ := ioutil.ReadAll(response.Body)
 
@@ -95,4 +97,30 @@ func TestStudentSearchByCPF(test *testing.T) {
 	router.ServeHTTP(response, request)
 
 	assert.Equal(test, http.StatusOK, response.Code)
+}
+
+func TestGetStudentById(test *testing.T) {
+	database.ConnectWithDatabase()
+
+	CreateMockStudent()
+
+	defer DeleteMockStudent()
+
+	router := MakeRoutes()
+
+	router.GET("/students/:id", controllers.GetStudentById)
+
+	request, _ := http.NewRequest("GET", "/students/"+strconv.Itoa(ID), nil)
+
+	response := httptest.NewRecorder()
+
+	router.ServeHTTP(response, request)
+
+	var mockStudent models.Student
+
+	json.Unmarshal(response.Body.Bytes(), &mockStudent)
+
+	assert.Equal(test, "mock-student", mockStudent.Name)
+	assert.Equal(test, "415.173.790-16", mockStudent.CPF)
+	assert.Equal(test, "23.069.369-6", mockStudent.RG)
 }
