@@ -124,3 +124,25 @@ func TestGetStudentById(test *testing.T) {
 	assert.Equal(test, "415.173.790-16", mockStudent.CPF)
 	assert.Equal(test, "23.069.369-6", mockStudent.RG)
 }
+
+func TestDeleteStudentById(test *testing.T) {
+	database.ConnectWithDatabase()
+
+	CreateMockStudent()
+
+	router := MakeRoutes()
+
+	router.DELETE("/students/:id", controllers.DeleteStudentById)
+
+	request, _ := http.NewRequest("DELETE", "/students/"+strconv.Itoa(ID), nil)
+
+	response := httptest.NewRecorder()
+
+	router.ServeHTTP(response, request)
+
+	assert.Equal(test, http.StatusOK, response.Code)
+
+	if response.Code != http.StatusOK {
+		DeleteMockStudent()
+	}
+}
